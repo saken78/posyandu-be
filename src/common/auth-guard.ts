@@ -38,7 +38,7 @@ export class CookiesChecker implements CanActivate {
     req.user = {
       id: user.sub,
       email: user.email,
-      fullname: user.fullname,
+      fullname: user.first_name,
     };
 
     return true;

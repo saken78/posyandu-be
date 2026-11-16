@@ -3,6 +3,9 @@ import {
   Controller,
   // Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Patch,
   // Patch,
   Post,
   Req,
@@ -15,13 +18,13 @@ import { CookiesChecker } from "../common/auth-guard.js";
 import { jsonCreated, jsonOK } from "../lib/response.js";
 import {
   AuthResponse,
-  // ChangeNameSchema,
+  ChangeNameSchema,
   // ChangePasswordSchema,
   // DeleteAccountSchema,
   LoginSchema,
   MeResponse,
   RegisterSchema,
-  // type ChangeNameRequest,
+  type ChangeNameRequest,
   // type ChangePasswordRequest,
   type LoginRequest,
   type RegisterRequest,
@@ -66,17 +69,21 @@ export class AuthController {
     return jsonOK(result);
   }
 
-  // @Patch("/auth/name")
-  // @UseGuards(CookiesChecker)
-  // @UsePipes(new ZodValidationPipe(ChangeNameSchema))
-  // async changeName(
-  //   @Body() body: ChangeNameRequest,
-  //   @Req() req: any,
-  // ): Promise<{ data: string }> {
-  //   const user = req.user as MeResponse;
-  //   await this.authService.changeName(user.email, body);
-  //   return jsonOK("Name changed successfully");
-  // }
+  @Patch("/auth/name")
+  @UseGuards(CookiesChecker)
+  @UsePipes(new ZodValidationPipe(ChangeNameSchema))
+  async changeName(
+    @Body() body: ChangeNameRequest,
+    @Req() req: any,
+  ): Promise<{ data: string }> {
+    const user = req.user as MeResponse;
+    console.log(user);
+    if (!body) {
+      throw new HttpException("fullname required!", HttpStatus.BAD_REQUEST);
+    }
+    await this.authService.changeName(user.id, body);
+    return jsonOK("Name changed successfully");
+  }
   //
   // @Patch("/auth/current")
   // @UseGuards(CookiesChecker)

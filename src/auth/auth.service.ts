@@ -8,7 +8,7 @@ import { prisma } from "../lib/prisma.js";
 import { SECRET } from "../lib/secret.js";
 import {
   AuthResponse,
-  // ChangeNameRequest,
+  type ChangeNameRequest,
   // ChangePasswordRequest,
   type LoginRequest,
   type RegisterRequest,
@@ -160,33 +160,29 @@ export class AuthService {
     this.logger.info("AuthService-getAllUser: executed successfully");
     return data;
   }
-  //
-  // async changeName(email: string, request: ChangeNameRequest): Promise<void> {
-  //   this.logger.info("AuthService-changeName: executed ...");
-  //   await prisma.users.update({
-  //     where: {
-  //       email: email,
-  //     },
-  //     data: {
-  //       ...(request.first_name !== undefined && {
-  //         first_name: request.first_name,
-  //       }),
-  //       ...(request.last_name !== undefined && {
-  //         last_name: request.last_name,
-  //       }),
-  //     },
-  //     select: {
-  //       id: true,
-  //       email: true,
-  //       role: true,
-  //       is_active: true,
-  //       first_name: true,
-  //       last_name: true,
-  //     },
-  //   });
-  //
-  //   this.logger.info("AuthService-changeName: executed successfully");
-  // }
+
+  async changeName(id: string, request: ChangeNameRequest): Promise<void> {
+    this.logger.info("AuthService-changeName: executed ...");
+    if (!request.fullname) {
+      throw new HttpException("fullname required!", HttpStatus.BAD_REQUEST);
+    }
+    await prisma.users.update({
+      where: {
+        id: id,
+      },
+      data: {
+        fullname: request.fullname,
+      },
+      select: {
+        id: true,
+        username: true,
+        fullname: true,
+        created_at: true,
+      },
+    });
+
+    this.logger.info("AuthService-changeName: executed successfully");
+  }
   //
   // async changePassword(
   //   email: string,
