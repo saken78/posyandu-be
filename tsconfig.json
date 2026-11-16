@@ -1,0 +1,82 @@
+{
+  "compilerOptions": {
+    // Module System
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "ES2023",
+    "moduleDetection": "force",
+    "types": ["node"],
+
+    // Strict Type Checking
+    "strict": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "strictPropertyInitialization": true,
+
+    // Code Quality
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // ESM & Interoperability
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+
+    // NestJS Decorators
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    // Build
+    "declaration": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmitOnError": true,
+
+    // Performance
+    "incremental": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+}
+
+// {
+//   "compilerOptions": {
+//     "module": "nodenext",
+//     "moduleResolution": "nodenext",
+//     "target": "ES2023",
+//
+//     "strict": true,
+//     "esModuleInterop": true,
+//     "experimentalDecorators": true,
+//     "emitDecoratorMetadata": true,
+//     "declaration": true,
+//
+//     "sourceMap": true,
+//     "outDir": "./dist",
+//
+//     "resolvePackageJsonExports": true,
+//     "isolatedModules": true,
+//     "removeComments": true,
+//     "allowSyntheticDefaultImports": true,
+//     "rootDir": ".",
+//
+//     "incremental": true,
+//     "skipLibCheck": true,
+//     "strictNullChecks": true,
+//     "noImplicitAny": true,
+//     "forceConsistentCasingInFileNames": true,
+//
+//     "noFallthroughCasesInSwitch": true,
+//     "strictPropertyInitialization": false,
+//     "types": ["vitest/globals", "node"]
+//   }
+// },

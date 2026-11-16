@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model periksa_balita {
+  id              String   @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id        String   @db.Char(70)
+  tanggal_periksa DateTime @db.Date
+  berat_badan     Decimal? @db.Decimal(5, 2)
+  tinggi_badan    Decimal? @db.Decimal(5, 2)
+  lingkar_kepala  Decimal? @db.Decimal(5, 2)
+  catatan         String?  @db.Text
+  warga           warga    @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "balita_fk_wargaid")
+
+  @@index([warga_id], map: "warga_id")
+}
+
+model periksa_ibu_hamil {
+  id                  String   @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id            String   @db.Char(70)
+  tanggal_periksa     DateTime @db.Date
+  usia_kandungan      Int?
+  berat_badan         Decimal? @db.Decimal(5, 2)
+  tensi_darah         String?  @db.VarChar(10)
+  lingkar_lengan_atas Decimal? @db.Decimal(5, 2)
+  catatan             String?  @db.Text
+  warga               warga    @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ibuhamil_fk_wargaid")
+
+  @@index([warga_id], map: "ibuhamil_fk_wargaid")
+}
+
+model periksa_umum {
+  id              String   @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id        String   @db.Char(70)
+  tanggal_periksa DateTime @db.Date
+  berat_badan     Decimal? @db.Decimal(5, 2)
+  tensi_darah     String?  @db.VarChar(10)
+  catatan         String?  @db.Text
+  warga           warga    @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "umum_fk_wargaid")
+
+  @@index([warga_id], map: "umum_fk_wargaid")
+}
+
+model users {
+  id         String    @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  username   String    @unique(map: "username") @db.VarChar(50)
+  password   String    @db.VarChar(255)
+  rt_hash    String?   @db.VarChar(255)
+  expires_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  fullname   String?   @db.VarChar(100)
+}
+
+model warga {
+  id                String              @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  no_kk             String              @db.VarChar(16)
+  nik               String              @unique(map: "nik") @db.VarChar(16)
+  nama              String              @db.VarChar(100)
+  jenis_kelamin     warga_jenis_kelamin
+  tanggal_lahir     DateTime            @db.Date
+  alamat_ktp        String?             @db.Text
+  alamat_tinggal    String?             @db.Text
+  kategori          warga_kategori
+  created_at        DateTime?           @default(now()) @db.Timestamp(0)
+  periksa_balita    periksa_balita[]
+  periksa_ibu_hamil periksa_ibu_hamil[]
+  periksa_umum      periksa_umum[]
+}
+
+enum warga_jenis_kelamin {
+  L
+  P
+}
+
+enum warga_kategori {
+  Ibu_Hamil             @map("Ibu Hamil")
+  Ibu_Bersalin_Nifas    @map("Ibu Bersalin/Nifas")
+  Balita
+  Anak_Pra_Sekolah      @map("Anak Pra Sekolah")
+  Usia_Sekolah___Remaja @map("Usia Sekolah & Remaja")
+  Usia_Dewasa           @map("Usia Dewasa")
+  Lansia
+}
