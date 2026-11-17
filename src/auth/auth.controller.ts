@@ -18,13 +18,13 @@ import { jsonCreated, jsonOK } from "../lib/response.js";
 import {
   AuthResponse,
   ChangeNameSchema,
-  // ChangePasswordSchema,
+  ChangePasswordSchema,
   // DeleteAccountSchema,
   LoginSchema,
   MeResponse,
   RegisterSchema,
   type ChangeNameRequest,
-  // type ChangePasswordRequest,
+  type ChangePasswordRequest,
   type LoginRequest,
   type RegisterRequest,
 } from "./auth.model.js";
@@ -83,19 +83,19 @@ export class AuthController {
     await this.authService.changeName(user.id, body, res);
     return jsonOK("Name changed successfully");
   }
-  //
-  // @Patch("/auth/current")
-  // @UseGuards(CookiesChecker)
-  // @UsePipes(new ZodValidationPipe(ChangePasswordSchema))
-  // async changePassword(
-  //   @Body() body: ChangePasswordRequest,
-  //   @Req() req: any,
-  // ): Promise<{ data: string }> {
-  //   const user = req.user as MeResponse;
-  //   await this.authService.changePassword(user.email, body);
-  //   return jsonOK("Password changed successfully");
-  // }
-  //
+
+  @Patch("/auth/current")
+  @UseGuards(CookiesChecker)
+  @UsePipes(new ZodValidationPipe(ChangePasswordSchema))
+  async changePassword(
+    @Body() body: ChangePasswordRequest,
+    @Req() req: any,
+  ): Promise<{ data: string }> {
+    const user = req.user as MeResponse;
+    await this.authService.changePassword(user.username, body);
+    return jsonOK("Password changed successfully");
+  }
+
   // @Delete("/auth/current")
   // @UseGuards(CookiesChecker)
   // async logout(

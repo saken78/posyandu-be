@@ -9,7 +9,7 @@ import { SECRET } from "../lib/secret.js";
 import {
   AuthResponse,
   type ChangeNameRequest,
-  // ChangePasswordRequest,
+  type ChangePasswordRequest,
   type LoginRequest,
   type RegisterRequest,
 } from "./auth.model.js";
@@ -232,65 +232,60 @@ export class AuthService {
     this.logger.info("AuthService-changeName: executed successfully");
   }
 
-  // async changePassword(
-  //   email: string,
-  //   request: ChangePasswordRequest,
-  // ): Promise<void> {
-  //   this.logger.info("AuthService-changePassword: executed ...");
-  //
-  //   const user = await prisma.users.findUnique({
-  //     where: {
-  //       email: email,
-  //     },
-  //     select: {
-  //       password_hash: true,
-  //     },
-  //   });
-  //
-  //   if (!user) {
-  //     throw new HttpException("User not found", HttpStatus.NOT_FOUND);
-  //   }
-  //
-  //   const oldMatch = await argon2.verify(
-  //     user.password_hash,
-  //     request.password_old,
-  //   );
-  //
-  //   if (!oldMatch) {
-  //     throw new HttpException("Old password is wrong", HttpStatus.UNAUTHORIZED);
-  //   }
-  //
-  //   const newMatch = await argon2.verify(user.password_hash, request.password);
-  //
-  //   if (newMatch) {
-  //     throw new HttpException("Password same as old", HttpStatus.BAD_REQUEST);
-  //   }
-  //
-  //   const npw = await argon2.hash(request.password, {
-  //     memoryCost: 65536,
-  //     timeCost: 3,
-  //   });
-  //
-  //   await prisma.users.update({
-  //     where: {
-  //       email: email,
-  //     },
-  //     data: {
-  //       password_hash: npw,
-  //     },
-  //     select: {
-  //       id: true,
-  //       email: true,
-  //       role: true,
-  //       is_active: true,
-  //       first_name: true,
-  //       last_name: true,
-  //     },
-  //   });
-  //
-  //   this.logger.info("AuthService-changePassword: executed successfully");
-  // }
-  //
+  async changePassword(
+    email: string,
+    request: ChangePasswordRequest,
+  ): Promise<void> {
+    this.logger.info("AuthService-changePassword: executed ...");
+
+    const user = await prisma.users.findUnique({
+      where: {
+        username: email,
+      },
+      select: {
+        password: true,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+    }
+
+    const oldMatch = await argon2.verify(user.password, request.password_old);
+
+    if (!oldMatch) {
+      throw new HttpException("Old password is wrong", HttpStatus.UNAUTHORIZED);
+    }
+
+    const newMatch = await argon2.verify(user.password, request.password);
+
+    if (newMatch) {
+      throw new HttpException("Password same as old", HttpStatus.BAD_REQUEST);
+    }
+
+    const npw = await argon2.hash(request.password, {
+      memoryCost: 65536,
+      timeCost: 3,
+    });
+
+    await prisma.users.update({
+      where: {
+        username: email,
+      },
+      data: {
+        password: npw,
+      },
+      select: {
+        id: true,
+        username: true,
+        fullname: true,
+        created_at: true,
+      },
+    });
+
+    this.logger.info("AuthService-changePassword: executed successfully");
+  }
+
   // async logout(email: string, res: Response): Promise<string> {
   //   this.logger.info("AuthService-logout: executed ...");
   //   const data = await prisma.users.findUnique({
