@@ -6,7 +6,6 @@ import {
   HttpException,
   HttpStatus,
   Patch,
-  // Patch,
   Post,
   Req,
   Res,
@@ -75,13 +74,13 @@ export class AuthController {
   async changeName(
     @Body() body: ChangeNameRequest,
     @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<{ data: string }> {
     const user = req.user as MeResponse;
-    console.log(user);
     if (!body) {
       throw new HttpException("fullname required!", HttpStatus.BAD_REQUEST);
     }
-    await this.authService.changeName(user.id, body);
+    await this.authService.changeName(user.id, body, res);
     return jsonOK("Name changed successfully");
   }
   //

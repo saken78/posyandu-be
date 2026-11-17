@@ -161,12 +161,16 @@ export class AuthService {
     return data;
   }
 
-  async changeName(id: string, request: ChangeNameRequest): Promise<void> {
+  async changeName(
+    id: string,
+    request: ChangeNameRequest,
+    response: Response,
+  ): Promise<void> {
     this.logger.info("AuthService-changeName: executed ...");
     if (!request.fullname) {
       throw new HttpException("fullname required!", HttpStatus.BAD_REQUEST);
     }
-    await prisma.users.update({
+    const user = await prisma.users.update({
       where: {
         id: id,
       },
@@ -181,9 +185,53 @@ export class AuthService {
       },
     });
 
+    const access_token_payload = {
+      sub: user.id,
+      email: user.username,
+      fullname: user.fullname,
+      exp: Math.floor(Date.now() / 1000) + 60 * 15,
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    const refresh_token_payload = {
+      sub: user.id,
+      email: user.username,
+      fullname: user.fullname,
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    const access_token = await this.jwt.signAsync(access_token_payload, {
+      secret: SECRET,
+      algorithm: "HS256",
+    });
+
+    const refresh_token = await this.jwt.signAsync(refresh_token_payload, {
+      secret: SECRET,
+      algorithm: "HS256",
+    });
+
+    response.cookie("access_token", access_token, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      sameSite: "lax",
+      signed: true,
+      maxAge: 60 * 15 * 1000,
+    });
+
+    response.cookie("refresh_token", refresh_token, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      sameSite: "lax",
+      signed: true,
+      maxAge: 60 * 60 * 24 * 7 * 1000,
+    });
+
     this.logger.info("AuthService-changeName: executed successfully");
   }
-  //
+
   // async changePassword(
   //   email: string,
   //   request: ChangePasswordRequest,
