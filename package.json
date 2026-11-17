@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "nest build",
+    "prisma:generate": "bunx --bun prisma generate",
     "deploy": "nest deploy",
     "start": "tsc --noEmit && nest start",
     "check": "tsc --noEmit",
