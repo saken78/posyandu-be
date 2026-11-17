@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  // Delete,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -96,17 +96,17 @@ export class AuthController {
     return jsonOK("Password changed successfully");
   }
 
-  // @Delete("/auth/current")
-  // @UseGuards(CookiesChecker)
-  // async logout(
-  //   @Req() req: any,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<{ data: string }> {
-  //   const user = req.user as MeResponse;
-  //   await this.authService.logout(user.email, res);
-  //   return jsonOK("Cookies cleared successfully");
-  // }
-  //
+  @Delete("/auth/current")
+  @UseGuards(CookiesChecker)
+  async logout(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ data: string }> {
+    const user = req.user as MeResponse;
+    await this.authService.logout(user.username, res);
+    return jsonOK("Cookies cleared successfully");
+  }
+
   // @Delete("/auth/delete_account")
   // @UseGuards(CookiesChecker)
   // @UsePipes(new ZodValidationPipe(DeleteAccountSchema))

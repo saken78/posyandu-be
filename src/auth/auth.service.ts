@@ -286,27 +286,37 @@ export class AuthService {
     this.logger.info("AuthService-changePassword: executed successfully");
   }
 
-  // async logout(email: string, res: Response): Promise<string> {
-  //   this.logger.info("AuthService-logout: executed ...");
-  //   const data = await prisma.users.findUnique({
-  //     where: {
-  //       email: email,
-  //     },
-  //   });
-  //
-  //   if (!data) {
-  //     throw new HttpException(
-  //       "Cookies already cleared",
-  //       HttpStatus.UNAUTHORIZED,
-  //     );
-  //   }
-  //
-  //   res.clearCookie("access_token");
-  //   res.clearCookie("refresh_token");
-  //   this.logger.info("AuthService-logout: executed successfully");
-  //   return "Cookies cleared successfully";
-  // }
-  //
+  async logout(email: string, res: Response): Promise<string> {
+    this.logger.info("AuthService-logout: executed ...");
+    const data = await prisma.users.findUnique({
+      where: {
+        username: email,
+      },
+    });
+
+    if (!data) {
+      throw new HttpException(
+        "Cookies already cleared",
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    await prisma.users.update({
+      where: {
+        username: email,
+      },
+      data: {
+        expires_at: null,
+        rt_hash: null,
+      },
+    });
+
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+    this.logger.info("AuthService-logout: executed successfully");
+    return "Cookies cleared successfully";
+  }
+
   // async deleteAccount(email: string, res: Response): Promise<void> {
   //   const account = await prisma.users.findUnique({
   //     where: {
