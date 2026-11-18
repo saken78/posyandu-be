@@ -8,14 +8,24 @@ datasource db {
 }
 
 model periksa_balita {
-  id              String   @id @default(dbgenerated("(uuid())")) @db.Char(70)
-  warga_id        String   @db.Char(70)
-  tanggal_periksa DateTime @db.Date
-  berat_badan     Decimal? @db.Decimal(5, 2)
-  tinggi_badan    Decimal? @db.Decimal(5, 2)
-  lingkar_kepala  Decimal? @db.Decimal(5, 2)
-  catatan         String?  @db.Text
-  warga           warga    @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "balita_fk_wargaid")
+  id                    String                         @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id              String                         @db.Char(70)
+  tanggal_periksa       DateTime                       @db.Date
+  periode_survey        String?                        @db.VarChar(20)
+  tanggal_buka_posyandu DateTime?                      @db.Date
+  tipe_kunjungan        periksa_balita_tipe_kunjungan?
+  usia_bulan            Int?
+  bb_terkini            Decimal?                       @db.Decimal(5, 2)
+  pb_terkini            Decimal?                       @db.Decimal(5, 2)
+  lika                  Decimal?                       @db.Decimal(5, 2)
+  kategori_pb_u         String?                        @db.VarChar(50)
+  label_pb_u            String?                        @db.VarChar(50)
+  kategori_bb_u         String?                        @db.VarChar(50)
+  label_bb_u            String?                        @db.VarChar(50)
+  kategori_bb_tb        String?                        @db.VarChar(50)
+  label_bb_tb           String?                        @db.VarChar(50)
+  kategori_lila         String?                        @db.VarChar(50)
+  warga                 warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "balita_fk_wargaid")
 
   @@index([warga_id], map: "warga_id")
 }
@@ -50,10 +60,10 @@ model users {
   id         String    @id @default(dbgenerated("(uuid())")) @db.Char(70)
   username   String    @unique(map: "username") @db.VarChar(50)
   password   String    @db.VarChar(255)
-  rt_hash    String?   @db.VarChar(255)
-  expires_at DateTime? @db.Timestamp(0)
   created_at DateTime? @default(now()) @db.Timestamp(0)
   fullname   String?   @db.VarChar(100)
+  expires_at DateTime? @db.Timestamp(0)
+  rt_hash    String?   @db.VarChar(255)
 }
 
 model warga {
@@ -67,6 +77,10 @@ model warga {
   alamat_tinggal    String?             @db.Text
   kategori          warga_kategori
   created_at        DateTime?           @default(now()) @db.Timestamp(0)
+  golongan_darah    String?             @db.VarChar(5)
+  anak_ke           Int?
+  bb_lahir          Decimal?            @db.Decimal(5, 2)
+  pb_lahir          Decimal?            @db.Decimal(5, 2)
   periksa_balita    periksa_balita[]
   periksa_ibu_hamil periksa_ibu_hamil[]
   periksa_umum      periksa_umum[]
@@ -85,4 +99,9 @@ enum warga_kategori {
   Usia_Sekolah___Remaja @map("Usia Sekolah & Remaja")
   Usia_Dewasa           @map("Usia Dewasa")
   Lansia
+}
+
+enum periksa_balita_tipe_kunjungan {
+  Datang_Langsung @map("Datang Langsung")
+  Kunjungan_Rumah @map("Kunjungan Rumah")
 }

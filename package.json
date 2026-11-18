@@ -9,6 +9,7 @@
   "scripts": {
     "build": "nest build",
     "prisma:generate": "bunx --bun prisma generate",
+    "prisma:pull": "bunx --bun prisma db pull",
     "deploy": "nest deploy",
     "start": "tsc --noEmit && nest start",
     "check": "tsc --noEmit",
