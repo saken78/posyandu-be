@@ -4,13 +4,14 @@ import {
   type MiddlewareConsumer,
   type NestModule,
 } from "@nestjs/common";
-import { AuthModule } from "./auth/auth.module.js";
-import { LogMiddleware } from "./common/log/log.middleware.js";
 import { JwtModule } from "@nestjs/jwt";
+import { AuthModule } from "./auth/auth.module.js";
 import { CommonModule } from "./common/common.module.js";
+import { LogMiddleware } from "./common/log/log.middleware.js";
+import { WargaModule } from "./warga/warga.module.js";
 
 @Module({
-  imports: [AuthModule, JwtModule.register({}), CommonModule],
+  imports: [AuthModule, JwtModule.register({}), CommonModule, WargaModule],
   controllers: [],
   providers: [],
 })
