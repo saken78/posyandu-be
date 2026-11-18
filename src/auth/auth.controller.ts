@@ -19,7 +19,7 @@ import {
   AuthResponse,
   ChangeNameSchema,
   ChangePasswordSchema,
-  // DeleteAccountSchema,
+  DeleteAccountSchema,
   LoginSchema,
   MeResponse,
   RegisterSchema,
@@ -107,15 +107,15 @@ export class AuthController {
     return jsonOK("Cookies cleared successfully");
   }
 
-  // @Delete("/auth/delete_account")
-  // @UseGuards(CookiesChecker)
-  // @UsePipes(new ZodValidationPipe(DeleteAccountSchema))
-  // async deleteAccount(
-  //   @Req() req: any,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<{ data: string }> {
-  //   const user = req.user as MeResponse;
-  //   await this.authService.deleteAccount(user.email, res);
-  //   return jsonOK("Account deleted successfully");
-  // }
+  @Delete("/auth/delete_account")
+  @UseGuards(CookiesChecker)
+  @UsePipes(new ZodValidationPipe(DeleteAccountSchema))
+  async deleteAccount(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ data: string }> {
+    const user = req.user as MeResponse;
+    await this.authService.deleteAccount(user.username, res);
+    return jsonOK("Account deleted successfully");
+  }
 }

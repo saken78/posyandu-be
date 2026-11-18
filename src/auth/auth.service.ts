@@ -317,23 +317,23 @@ export class AuthService {
     return "Cookies cleared successfully";
   }
 
-  // async deleteAccount(email: string, res: Response): Promise<void> {
-  //   const account = await prisma.users.findUnique({
-  //     where: {
-  //       email: email,
-  //     },
-  //   });
-  //   if (!account) {
-  //     throw new HttpException("Account not found", HttpStatus.NOT_FOUND);
-  //   }
-  //
-  //   await prisma.users.delete({
-  //     where: {
-  //       email: email,
-  //     },
-  //   });
-  //
-  //   res.clearCookie("access_token");
-  //   res.clearCookie("refresh_token");
-  // }
+  async deleteAccount(email: string, res: Response): Promise<void> {
+    const account = await prisma.users.findUnique({
+      where: {
+        username: email,
+      },
+    });
+    if (!account) {
+      throw new HttpException("Account not found", HttpStatus.NOT_FOUND);
+    }
+
+    await prisma.users.delete({
+      where: {
+        username: email,
+      },
+    });
+
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+  }
 }
