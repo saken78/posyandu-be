@@ -16,8 +16,12 @@ export function parsePagination(page: number, take: number) {
   if (take === undefined) {
     take = isNaN(take) ? 10 : take;
   }
+
+  const ofs: number = (page - 1) * take;
+
   return {
     take,
     page,
+    ofs,
   };
 }

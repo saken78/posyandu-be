@@ -1,5 +1,5 @@
 import { HttpStatus } from "@nestjs/common";
-// import { parsePagination } from "./types";
+import { parsePagination } from "./pagination.js";
 
 export function jsonOk<T>(data: T): { data: T; status_code: number } {
   return {
@@ -17,44 +17,20 @@ export function jsonCreated<T>(data: T): { data: T; status_code: number } {
   };
 }
 
-// export function jsonPaginated<T>(
-//   c: Context,
-//   data: { data: T; page?: number; take?: number; total?: number },
-// ) {
-//   return c.json(
-//     {
-//       ...data,
-//     },
-//     HttpStatus.OK,
-//   );
-// }
-//
-// export function getPagination(c: Context) {
-//   const take = Number(c.req.query("take"));
-//   const page = Number(c.req.query("page"));
-//   return parsePagination(page, take);
-// }
-//
-// export function requireParam(c: Context, name: string): string {
-//   const value = c.req.param(name);
-//   if (!value) {
-//     throw new HTTPException(HttpStatus.BAD_REQUEST, {
-//       message: `Param ${name} is required`,
-//     });
-//   }
-//   return value;
-// }
-//
-// export function requireQuery(c: Context, name: string): string {
-//   const value = c.req.query(name);
-//   if (!value) {
-//     throw new HTTPException(HttpStatus.BAD_REQUEST, {
-//       message: `Query param ${name} is required`,
-//     });
-//   }
-//   return value;
-// }
-//
-// export function getIdParam(c: Context): string {
-//   return requireParam(c, "id");
-// }
+export function jsonPaginated<T>(data: {
+  data: T;
+  page?: number;
+  take?: number;
+  total?: number;
+}) {
+  return {
+    ...data,
+    status_code: HttpStatus.OK,
+  };
+}
+
+export function getPagination(page_query: string, take_query: string) {
+  const take = Number(take_query);
+  const page = Number(page_query);
+  return parsePagination(page, take);
+}
