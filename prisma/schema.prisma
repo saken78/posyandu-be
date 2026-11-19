@@ -8,24 +8,23 @@ datasource db {
 }
 
 model periksa_balita {
-  id                    String                         @id @default(dbgenerated("(uuid())")) @db.Char(70)
-  warga_id              String                         @db.Char(70)
-  tanggal_periksa       DateTime                       @db.Date
-  periode_survey        String?                        @db.VarChar(20)
-  tanggal_buka_posyandu DateTime?                      @db.Date
-  tipe_kunjungan        periksa_balita_tipe_kunjungan?
-  usia_bulan            Int?
-  bb_terkini            Decimal?                       @db.Decimal(5, 2)
-  pb_terkini            Decimal?                       @db.Decimal(5, 2)
-  lika                  Decimal?                       @db.Decimal(5, 2)
-  kategori_pb_u         String?                        @db.VarChar(50)
-  label_pb_u            String?                        @db.VarChar(50)
-  kategori_bb_u         String?                        @db.VarChar(50)
-  label_bb_u            String?                        @db.VarChar(50)
-  kategori_bb_tb        String?                        @db.VarChar(50)
-  label_bb_tb           String?                        @db.VarChar(50)
-  kategori_lila         String?                        @db.VarChar(50)
-  warga                 warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "balita_fk_wargaid")
+  id             String                         @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id       String                         @db.Char(70)
+  tanggal_survey DateTime                       @db.Date
+  periode_survey String?                        @db.VarChar(20)
+  tipe_kunjungan periksa_balita_tipe_kunjungan?
+  usia_bulan     Int?
+  bb_terkini     Decimal?                       @db.Decimal(5, 2)
+  pb_terkini     Decimal?                       @db.Decimal(5, 2)
+  lika           Decimal?                       @db.Decimal(5, 2)
+  kategori_pb_u  String?                        @db.VarChar(50)
+  label_pb_u     String?                        @db.VarChar(50)
+  kategori_bb_u  String?                        @db.VarChar(50)
+  label_bb_u     String?                        @db.VarChar(50)
+  kategori_bb_tb String?                        @db.VarChar(50)
+  label_bb_tb    String?                        @db.VarChar(50)
+  kategori_lila  String?                        @db.VarChar(50)
+  warga          warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "balita_fk_wargaid")
 
   @@index([warga_id], map: "warga_id")
 }
@@ -44,18 +43,6 @@ model periksa_ibu_hamil {
   @@index([warga_id], map: "ibuhamil_fk_wargaid")
 }
 
-model periksa_umum {
-  id              String   @id @default(dbgenerated("(uuid())")) @db.Char(70)
-  warga_id        String   @db.Char(70)
-  tanggal_periksa DateTime @db.Date
-  berat_badan     Decimal? @db.Decimal(5, 2)
-  tensi_darah     String?  @db.VarChar(10)
-  catatan         String?  @db.Text
-  warga           warga    @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "umum_fk_wargaid")
-
-  @@index([warga_id], map: "umum_fk_wargaid")
-}
-
 model users {
   id         String    @id @default(dbgenerated("(uuid())")) @db.Char(70)
   username   String    @unique(map: "username") @db.VarChar(50)
@@ -67,23 +54,102 @@ model users {
 }
 
 model warga {
-  id                String              @id @default(dbgenerated("(uuid())")) @db.Char(70)
-  no_kk             String              @db.VarChar(16)
-  nik               String              @unique(map: "nik") @db.VarChar(16)
-  nama              String              @db.VarChar(100)
-  jenis_kelamin     warga_jenis_kelamin
-  tanggal_lahir     DateTime            @db.Date
-  alamat_ktp        String?             @db.Text
-  alamat_tinggal    String?             @db.Text
-  kategori          warga_kategori
-  created_at        DateTime?           @default(now()) @db.Timestamp(0)
-  golongan_darah    String?             @db.VarChar(5)
-  anak_ke           Int?
-  bb_lahir          Decimal?            @db.Decimal(5, 2)
-  pb_lahir          Decimal?            @db.Decimal(5, 2)
-  periksa_balita    periksa_balita[]
-  periksa_ibu_hamil periksa_ibu_hamil[]
-  periksa_umum      periksa_umum[]
+  id                  String                @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  no_kk               String                @db.VarChar(16)
+  nik                 String                @unique(map: "nik") @db.VarChar(16)
+  nama                String                @db.VarChar(100)
+  jenis_kelamin       warga_jenis_kelamin
+  tanggal_lahir       DateTime              @db.Date
+  alamat_ktp          String?               @db.Text
+  alamat_tinggal      String?               @db.Text
+  kategori            warga_kategori
+  created_at          DateTime?             @default(now()) @db.Timestamp(0)
+  golongan_darah      String?               @db.VarChar(5)
+  anak_ke             Int?
+  bb_lahir            Decimal?              @db.Decimal(5, 2)
+  pb_lahir            Decimal?              @db.Decimal(5, 2)
+  periksa_balita      periksa_balita[]
+  periksa_dewasa      periksa_dewasa[]
+  periksa_ibu_hamil   periksa_ibu_hamil[]
+  periksa_lansia      periksa_lansia[]
+  periksa_pra_sekolah periksa_pra_sekolah[]
+  periksa_remaja      periksa_remaja[]
+}
+
+model periksa_dewasa {
+  id             String                         @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id       String                         @db.Char(70)
+  periode_survey String?                        @db.VarChar(20)
+  tanggal_survey DateTime?                      @db.Date
+  tipe_kunjungan periksa_dewasa_tipe_kunjungan?
+  berat_badan    Decimal?                       @db.Decimal(5, 2)
+  tinggi_badan   Decimal?                       @db.Decimal(5, 2)
+  lila           Decimal?                       @db.Decimal(5, 2)
+  kategori_lila  String?                        @db.VarChar(50)
+  lingkar_perut  Decimal?                       @db.Decimal(5, 2)
+  nilai_imt      Decimal?                       @db.Decimal(5, 2)
+  keterangan_imt String?                        @db.VarChar(50)
+  kb             String?                        @db.VarChar(50)
+  created_at     DateTime?                      @default(now()) @db.Timestamp(0)
+  warga          warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "dewasa_fk_wargaid")
+
+  @@index([warga_id], map: "dewasa_fk_wargaid")
+}
+
+model periksa_lansia {
+  id             String                         @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id       String                         @db.Char(70)
+  periode_survey String?                        @db.VarChar(20)
+  tanggal_survey DateTime?                      @db.Date
+  tipe_kunjungan periksa_lansia_tipe_kunjungan?
+  berat_badan    Decimal?                       @db.Decimal(5, 2)
+  tinggi_badan   Decimal?                       @db.Decimal(5, 2)
+  lila           Decimal?                       @db.Decimal(5, 2)
+  kategori_lila  String?                        @db.VarChar(50)
+  lingkar_perut  Decimal?                       @db.Decimal(5, 2)
+  nilai_imt      Decimal?                       @db.Decimal(5, 2)
+  keterangan_imt String?                        @db.VarChar(50)
+  created_at     DateTime?                      @default(now()) @db.Timestamp(0)
+  warga          warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "lansia_fk_wargaid")
+
+  @@index([warga_id], map: "lansia_fk_wargaid")
+}
+
+model periksa_pra_sekolah {
+  id             String                              @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id       String                              @db.Char(70)
+  periode_survey String?                             @db.VarChar(20)
+  tanggal_survey DateTime?                           @db.Date
+  tipe_kunjungan periksa_pra_sekolah_tipe_kunjungan?
+  berat_badan    Decimal?                            @db.Decimal(5, 2)
+  tinggi_badan   Decimal?                            @db.Decimal(5, 2)
+  lika           Decimal?                            @db.Decimal(5, 2)
+  lingkar_perut  Decimal?                            @db.Decimal(5, 2)
+  nilai_imt      Decimal?                            @db.Decimal(5, 2)
+  keterangan_imt String?                             @db.VarChar(50)
+  created_at     DateTime?                           @default(now()) @db.Timestamp(0)
+  warga          warga                               @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "pra_sekolah_fk_wargaid")
+
+  @@index([warga_id], map: "pra_sekolah_fk_wargaid")
+}
+
+model periksa_remaja {
+  id             String                         @id @default(dbgenerated("(uuid())")) @db.Char(70)
+  warga_id       String                         @db.Char(70)
+  periode_survey String?                        @db.VarChar(20)
+  tanggal_survey DateTime?                      @db.Date
+  tipe_kunjungan periksa_remaja_tipe_kunjungan?
+  berat_badan    Decimal?                       @db.Decimal(5, 2)
+  tinggi_badan   Decimal?                       @db.Decimal(5, 2)
+  lila           Decimal?                       @db.Decimal(5, 2)
+  kategori_lila  String?                        @db.VarChar(50)
+  lingkar_perut  Decimal?                       @db.Decimal(5, 2)
+  nilai_imt      Decimal?                       @db.Decimal(5, 2)
+  keterangan_imt String?                        @db.VarChar(50)
+  created_at     DateTime?                      @default(now()) @db.Timestamp(0)
+  warga          warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "remaja_fk_wargaid")
+
+  @@index([warga_id], map: "remaja_fk_wargaid")
 }
 
 enum warga_jenis_kelamin {
@@ -102,6 +168,26 @@ enum warga_kategori {
 }
 
 enum periksa_balita_tipe_kunjungan {
+  Datang_Langsung @map("Datang Langsung")
+  Kunjungan_Rumah @map("Kunjungan Rumah")
+}
+
+enum periksa_dewasa_tipe_kunjungan {
+  Datang_Langsung @map("Datang Langsung")
+  Kunjungan_Rumah @map("Kunjungan Rumah")
+}
+
+enum periksa_lansia_tipe_kunjungan {
+  Datang_Langsung @map("Datang Langsung")
+  Kunjungan_Rumah @map("Kunjungan Rumah")
+}
+
+enum periksa_pra_sekolah_tipe_kunjungan {
+  Datang_Langsung @map("Datang Langsung")
+  Kunjungan_Rumah @map("Kunjungan Rumah")
+}
+
+enum periksa_remaja_tipe_kunjungan {
   Datang_Langsung @map("Datang Langsung")
   Kunjungan_Rumah @map("Kunjungan Rumah")
 }
