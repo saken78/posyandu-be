@@ -17,6 +17,7 @@ model periksa_balita {
   bb_terkini     Decimal?                       @db.Decimal(5, 2)
   pb_terkini     Decimal?                       @db.Decimal(5, 2)
   lika           Decimal?                       @db.Decimal(5, 2)
+  lila           Decimal?                       @db.Decimal(5, 2)
   kategori_pb_u  String?                        @db.VarChar(50)
   label_pb_u     String?                        @db.VarChar(50)
   kategori_bb_u  String?                        @db.VarChar(50)
@@ -158,36 +159,36 @@ enum warga_jenis_kelamin {
 }
 
 enum warga_kategori {
-  Ibu_Hamil             @map("Ibu Hamil")
-  Ibu_Bersalin_Nifas    @map("Ibu Bersalin/Nifas")
+  Ibu_Hamil
+  Ibu_Bersalin_Nifas
   Balita
-  Anak_Pra_Sekolah      @map("Anak Pra Sekolah")
-  Usia_Sekolah___Remaja @map("Usia Sekolah & Remaja")
-  Usia_Dewasa           @map("Usia Dewasa")
+  Anak_Pra_Sekolah
+  Usia_Sekolah___Remaja
+  Usia_Dewasa
   Lansia
 }
 
 enum periksa_balita_tipe_kunjungan {
-  Datang_Langsung @map("Datang Langsung")
-  Kunjungan_Rumah @map("Kunjungan Rumah")
+  Datang_Langsung
+  Kunjungan_Rumah
 }
 
 enum periksa_dewasa_tipe_kunjungan {
-  Datang_Langsung @map("Datang Langsung")
-  Kunjungan_Rumah @map("Kunjungan Rumah")
+  Datang_Langsung
+  Kunjungan_Rumah
 }
 
 enum periksa_lansia_tipe_kunjungan {
-  Datang_Langsung @map("Datang Langsung")
-  Kunjungan_Rumah @map("Kunjungan Rumah")
+  Datang_Langsung
+  Kunjungan_Rumah
 }
 
 enum periksa_pra_sekolah_tipe_kunjungan {
-  Datang_Langsung @map("Datang Langsung")
-  Kunjungan_Rumah @map("Kunjungan Rumah")
+  Datang_Langsung
+  Kunjungan_Rumah
 }
 
 enum periksa_remaja_tipe_kunjungan {
-  Datang_Langsung @map("Datang Langsung")
-  Kunjungan_Rumah @map("Kunjungan Rumah")
+  Datang_Langsung
+  Kunjungan_Rumah
 }

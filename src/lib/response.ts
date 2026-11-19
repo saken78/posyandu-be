@@ -29,6 +29,24 @@ export function jsonPaginated<T>(data: {
   };
 }
 
+export function jsonList<T>(result: {
+  data: T[];
+  page: number;
+  take: number;
+  total: number;
+}) {
+  return {
+    data: result.data,
+    meta: {
+      page: result.page,
+      take: result.take,
+      total: result.total,
+      total_pages: Math.ceil(result.total / result.take),
+    },
+    status_code: HttpStatus.OK,
+  };
+}
+
 export function getPagination(page_query: string, take_query: string) {
   const take = Number(take_query);
   const page = Number(page_query);
