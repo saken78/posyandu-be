@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { Prisma } from "../generated/client.js";
 import { prisma } from "../lib/prisma.js";
 import {
@@ -9,12 +9,18 @@ import {
   type CreatePeriksaBalitaRequest,
   type SearchPeriksaBalitaQuery,
 } from "./balita.model.js";
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
+import type { Logger } from "winston";
 
 @Injectable()
 export class BalitaService {
-  constructor() {}
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER)
+    private logger: Logger,
+  ) {}
 
   async getAll({ q, tipe, from, to, take, page }: SearchPeriksaBalitaQuery) {
+    this.logger.info("BalitaService-getAll: executed ...");
     const qParam = q ?? null;
     const tipeParam = tipe ?? null;
     const fromParam = from ?? null;
@@ -91,6 +97,7 @@ export class BalitaService {
   }
 
   async getByNIK(nik: string) {
+    this.logger.info("BalitaService-getByNIK: executed ...");
     const data = await prisma.warga.findUnique({
       where: {
         nik: nik,
@@ -111,6 +118,7 @@ export class BalitaService {
   }
 
   async createScreening(nik: string, request: CreatePeriksaBalitaRequest) {
+    this.logger.info("BalitaService-getByScreening: executed ...");
     const warga = await prisma.warga.findUnique({
       where: {
         nik: nik,
@@ -140,6 +148,7 @@ export class BalitaService {
   }
 
   async deleteScreening(id: string) {
+    this.logger.info("BalitaService-deleteScreening: executed ...");
     const exist = await prisma.periksa_balita.findUnique({
       where: {
         id: id,
