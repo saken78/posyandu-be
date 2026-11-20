@@ -44,3 +44,7 @@ export type GetAllPeriksaPraSekolahRow = {
   warga__tanggal_lahir: Date;
   warga__kategori: string;
 };
+
+export type GetAllTotal = {
+  total: number;
+};

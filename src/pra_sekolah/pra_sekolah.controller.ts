@@ -17,7 +17,7 @@ import {
   type SearchPeriksaPraSekolahRequest,
 } from "./pra_sekolah.model.js";
 import { PraSekolahService } from "./pra_sekolah.service.js";
-import { jsonOk } from "../lib/response.js";
+import { jsonList, jsonOk } from "../lib/response.js";
 
 @Controller()
 export class PraSekolahController {
@@ -30,7 +30,7 @@ export class PraSekolahController {
     query: SearchPeriksaPraSekolahRequest,
   ) {
     const result = await this.prasekolahService.getAll(query);
-    return jsonOk(result);
+    return jsonList(result);
   }
 
   @Get("/prasekolah/:nik")
