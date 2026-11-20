@@ -1,15 +1,119 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { prisma } from "../lib/prisma.js";
-import type { CreatePeriksaPraSekolahRequest } from "./pra_sekolah.model.js";
 import { hitungIMT } from "../lib/imt.js";
+import { prisma } from "../lib/prisma.js";
+import type {
+  CreatePeriksaPraSekolahRequest,
+  GetAllPeriksaPraSekolahRow,
+  SearchPeriksaPraSekolahRequest,
+} from "./pra_sekolah.model.js";
 
 @Injectable()
 export class PraSekolahService {
   constructor() {}
 
-  async getAll() {
-    const data = await prisma.periksa_pra_sekolah.findMany();
-    if (!data) {
+  async getAll(query: SearchPeriksaPraSekolahRequest) {
+    const offset = (query.page - 1) * query.take;
+    let data: GetAllPeriksaPraSekolahRow[] = [];
+    if (query.q && query.tipe) {
+      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+        select
+            pp.id,
+            pp.warga_id,
+            pp.tanggal_survey,
+            pp.periode_survey,
+            pp.tipe_kunjungan,
+            pp.berat_badan,
+            pp.tinggi_badan,
+            pp.lika,
+            w.id AS warga__id,
+            w.nik AS warga__nik,
+            w.nama AS warga__nama,
+            w.jenis_kelamin AS warga__jenis_kelamin,
+            w.tanggal_lahir AS warga__tanggal_lahir,
+            w.kategori AS warga__kategori
+        from
+            periksa_pra_sekolah as pp
+            inner join warga as w on w.id = pp.warga_id
+        where (
+              w.nama LIKE CONCAT('%', ${query.q}, '%')
+              OR w.nik LIKE CONCAT('%', ${query.q}, '%')
+              )
+            AND pp.tipe_kunjungan = ${query.tipe}
+        ORDER BY pp.tanggal_survey
+        limit ${query.take} offset ${offset};`;
+    } else if (!query.q && query.tipe) {
+      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+        select
+            pp.id,
+            pp.warga_id,
+            pp.tanggal_survey,
+            pp.periode_survey,
+            pp.tipe_kunjungan,
+            pp.berat_badan,
+            pp.tinggi_badan,
+            pp.lika,
+            w.id AS warga__id,
+            w.nik AS warga__nik,
+            w.nama AS warga__nama,
+            w.jenis_kelamin AS warga__jenis_kelamin,
+            w.tanggal_lahir AS warga__tanggal_lahir,
+            w.kategori AS warga__kategori
+        from
+            periksa_pra_sekolah as pp
+            inner join warga as w on w.id = pp.warga_id
+        where
+            pp.tipe_kunjungan = ${query.tipe}
+        ORDER BY pp.tanggal_survey
+        limit ${query.take} offset ${offset};`;
+    } else if (query.q && !query.tipe) {
+      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+        select
+            pp.id,
+            pp.warga_id,
+            pp.tanggal_survey,
+            pp.periode_survey,
+            pp.tipe_kunjungan,
+            pp.berat_badan,
+            pp.tinggi_badan,
+            pp.lika,
+            w.id AS warga__id,
+            w.nik AS warga__nik,
+            w.nama AS warga__nama,
+            w.jenis_kelamin AS warga__jenis_kelamin,
+            w.tanggal_lahir AS warga__tanggal_lahir,
+            w.kategori AS warga__kategori
+        from
+            periksa_pra_sekolah as pp
+            inner join warga as w on w.id = pp.warga_id
+        where
+            w.nama LIKE CONCAT('%', ${query.q}, '%')
+            OR w.nik LIKE CONCAT('%', ${query.q}, '%')
+        ORDER BY pp.tanggal_survey
+        limit ${query.take} offset ${offset};`;
+    } else if (!query.q && !query.tipe) {
+      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+        select
+            pp.id,
+            pp.warga_id,
+            pp.tanggal_survey,
+            pp.periode_survey,
+            pp.tipe_kunjungan,
+            pp.berat_badan,
+            pp.tinggi_badan,
+            pp.lika,
+            w.id AS warga__id,
+            w.nik AS warga__nik,
+            w.nama AS warga__nama,
+            w.jenis_kelamin AS warga__jenis_kelamin,
+            w.tanggal_lahir AS warga__tanggal_lahir,
+            w.kategori AS warga__kategori
+        from
+            periksa_pra_sekolah as pp
+            inner join warga as w on w.id = pp.warga_id
+        ORDER BY pp.tanggal_survey
+        limit ${query.take} offset ${offset};`;
+    }
+    if (data.length === 0) {
       throw new HttpException(
         "Data Anak Pra sekolah masih kosong",
         HttpStatus.NOT_FOUND,

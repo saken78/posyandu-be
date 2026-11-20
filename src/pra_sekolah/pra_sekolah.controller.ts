@@ -5,13 +5,16 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import { ZodValidationPipe } from "../auth/zod-validation.pipe.js";
 import { CookiesChecker } from "../common/auth-guard.js";
 import {
   CreatePeriksaPraSekolahSchema,
+  SearchPeriksaPraSekolahSchema,
   type CreatePeriksaPraSekolahRequest,
+  type SearchPeriksaPraSekolahRequest,
 } from "./pra_sekolah.model.js";
 import { PraSekolahService } from "./pra_sekolah.service.js";
 import { jsonOk } from "../lib/response.js";
@@ -22,8 +25,11 @@ export class PraSekolahController {
 
   @Get("/prasekolah")
   @UseGuards(CookiesChecker)
-  async getAll() {
-    const result = await this.prasekolahService.getAll();
+  async getAll(
+    @Query(new ZodValidationPipe(SearchPeriksaPraSekolahSchema))
+    query: SearchPeriksaPraSekolahRequest,
+  ) {
+    const result = await this.prasekolahService.getAll(query);
     return jsonOk(result);
   }
 
