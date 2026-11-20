@@ -1,12 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
+import type { warga_kategori } from "../generated/enums.js";
 import { prisma } from "../lib/prisma.js";
 import type { CreateWargaRequest, WargaResponse } from "./warga.model.js";
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
+import type { Logger } from "winston";
 
 @Injectable()
 export class WargaService {
-  constructor() {}
+  constructor(@Inject(WINSTON_MODULE_PROVIDER) private logger: Logger) {}
 
   async create(request: CreateWargaRequest): Promise<WargaResponse> {
+    this.logger.info("WargaService-create: executed ...");
     const exist = await prisma.warga.findUnique({
       where: {
         nik: request.nik,
@@ -38,6 +42,7 @@ export class WargaService {
   }
 
   async getByNIK(nik: string): Promise<WargaResponse> {
+    this.logger.info("WargaService-getByNIK: executed ...");
     const data = await prisma.warga.findUnique({
       where: {
         nik: nik,
@@ -47,5 +52,48 @@ export class WargaService {
       throw new HttpException("Data not found", HttpStatus.NOT_FOUND);
     }
     return data;
+  }
+
+  async search(
+    take: number,
+    page: number,
+    q?: string,
+    kategori?: warga_kategori,
+  ) {
+    this.logger.info("WargaService-search: executed ...");
+    const offset = (page - 1) * take;
+    const where = {
+      ...(kategori ? { kategori } : {}),
+      ...(q
+        ? {
+            OR: [
+              { nama: { contains: q } },
+              { nik: { contains: q } },
+              { no_kk: { contains: q } },
+            ],
+          }
+        : {}),
+    };
+    const [data, total] = await prisma.$transaction([
+      prisma.warga.findMany({
+        where,
+        take: take,
+        skip: offset,
+        orderBy: {
+          created_at: "desc",
+        },
+      }),
+
+      prisma.warga.count({
+        where,
+      }),
+    ]);
+
+    return {
+      data: data,
+      page: page,
+      take: take,
+      total: total,
+    };
   }
 }

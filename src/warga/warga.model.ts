@@ -1,4 +1,5 @@
 import z from "zod";
+import { warga_kategori } from "../generated/enums.js";
 
 export const CreateWargaSchema = z.object({
   no_kk: z.string().min(1),
@@ -8,15 +9,7 @@ export const CreateWargaSchema = z.object({
   tanggal_lahir: z.coerce.date(),
   alamat_ktp: z.string().optional(),
   alamat_tinggal: z.string().optional(),
-  kategori: z.enum([
-    "Ibu_Hamil",
-    "Ibu_Bersalin_Nifas",
-    "Balita",
-    "Anak_Pra_Sekolah",
-    "Usia_Sekolah___Remaja",
-    "Usia_Dewasa",
-    "Lansia",
-  ]),
+  kategori: z.enum(warga_kategori),
   golongan_darah: z.string().optional(),
   anak_ke: z.coerce.number().int().optional(),
   bb_lahir: z.coerce.number().optional(),
@@ -48,3 +41,12 @@ export class WargaResponse {
   bb_lahir?: unknown;
   pb_lahir?: unknown;
 }
+
+export const SearchWargaSchema = z.object({
+  q: z.string().trim().optional(),
+  kategori: z.enum(warga_kategori).optional(),
+  take: z.coerce.number().int().min(1).max(100).default(10),
+  page: z.coerce.number().int().min(1).default(1),
+});
+
+export type SearchWargaQuery = z.infer<typeof SearchWargaSchema>;
