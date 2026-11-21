@@ -11,6 +11,7 @@ import { LogMiddleware } from "./common/log/log.middleware.js";
 import { WargaModule } from "./warga/warga.module.js";
 import { BalitaModule } from "./balita/balita.module.js";
 import { PraSekolahModule } from "./pra_sekolah/pra_sekolah.module.js";
+import { TokenModule } from "./token/token.module.js";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PraSekolahModule } from "./pra_sekolah/pra_sekolah.module.js";
     WargaModule,
     BalitaModule,
     PraSekolahModule,
+    TokenModule,
   ],
   controllers: [],
   providers: [],
