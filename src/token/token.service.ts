@@ -10,7 +10,7 @@ import type { Response } from "express";
 export class TokenService {
   constructor(private jwtService: JwtService) {}
 
-  async refresh(rt: string, response: Response) {
+  async refresh(rt: string, response: Response): Promise<void> {
     const payload: JWTPayload = this.jwtService.verify(rt, {
       secret: SECRET,
     });

@@ -18,7 +18,7 @@ export class TokenController {
   async refresh(
     @SignedCookies("refresh_token") cookies: string,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{ data: string }> {
     if (!cookies) {
       throw new HttpException(
         "Refresh Token undefined",
