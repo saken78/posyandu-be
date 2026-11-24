@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { angka, toDateOnly, toISOString } from "../lib/helper.js";
 import { hitungIMT } from "../lib/imt.js";
 import { prisma } from "../lib/prisma.js";
 import type {
@@ -14,10 +15,10 @@ export class PraSekolahService {
 
   async getAll(query: SearchPeriksaPraSekolahRequest) {
     const offset = (query.page - 1) * query.take;
-    let data: GetAllPeriksaPraSekolahRow[] = [];
-    let total_raw;
+    let data_raw: GetAllPeriksaPraSekolahRow[] = [];
+    let total_raw: GetAllTotal[] = [];
     if (query.q && query.tipe) {
-      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+      data_raw = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
         select
             pp.id,
             pp.warga_id,
@@ -59,7 +60,7 @@ export class PraSekolahService {
             AND pp.tipe_kunjungan = ${query.tipe}
       `;
     } else if (!query.q && query.tipe) {
-      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+      data_raw = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
         select
             pp.id,
             pp.warga_id,
@@ -95,7 +96,7 @@ export class PraSekolahService {
             pp.tipe_kunjungan = ${query.tipe}
       `;
     } else if (query.q && !query.tipe) {
-      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+      data_raw = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
         select
             pp.id,
             pp.warga_id,
@@ -133,7 +134,7 @@ export class PraSekolahService {
             OR w.nik LIKE CONCAT('%', ${query.q}, '%')
       `;
     } else if (!query.q && !query.tipe) {
-      data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+      data_raw = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
         select
             pp.id,
             pp.warga_id,
@@ -157,14 +158,37 @@ export class PraSekolahService {
             inner join warga as w on w.id = pp.warga_id
         ORDER BY pp.tanggal_survey
         limit ${query.take} offset ${offset};`;
-    }
-    total_raw = await prisma.$queryRaw<GetAllTotal[]>`
+
+      total_raw = await prisma.$queryRaw<GetAllTotal[]>`
         select COUNT(*) as total
         from
             periksa_pra_sekolah as pp
             inner join warga as w on w.id = pp.warga_id;
     `;
-    const total = Number(total_raw[0]?.total) ?? 0;
+    }
+
+    const total = Number(total_raw[0]?.total ?? 0);
+    const data = data_raw.map((row) => ({
+      id: row.id,
+      warga_id: row.warga_id,
+      tanggal_survey: toISOString(row.tanggal_survey),
+      periode_survey: row.periode_survey,
+      tipe_kunjungan: row.tipe_kunjungan,
+      berat_badan: angka(row.berat_badan),
+      tinggi_badan: angka(row.tinggi_badan),
+      lika: angka(row.lika),
+      lingkar_perut: angka(row.lingkar_perut),
+      nilai_imt: angka(row.nilai_imt),
+      keterangan_imt: row.keterangan_imt,
+      warga: {
+        id: row.warga__id,
+        nik: row.warga__nik,
+        nama: row.warga__nama,
+        jenis_kelamin: row.warga__jenis_kelamin,
+        tanggal_lahir: toDateOnly(row.warga__tanggal_lahir),
+        kategori: row.warga__kategori,
+      },
+    }));
     if (data.length === 0) {
       throw new HttpException(
         "Data Anak Pra sekolah masih kosong",

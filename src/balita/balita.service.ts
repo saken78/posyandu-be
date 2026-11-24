@@ -1,16 +1,14 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
-import { Prisma } from "../generated/client.js";
-import { prisma } from "../lib/prisma.js";
-import {
-  angka,
-  toDateOnly,
-  toISOString,
-  type BalitaRow,
-  type CreatePeriksaBalitaRequest,
-  type SearchPeriksaBalitaQuery,
-} from "./balita.model.js";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import type { Logger } from "winston";
+import { prisma } from "../lib/prisma.js";
+import {
+  type BalitaRow,
+  type CreatePeriksaBalitaRequest,
+  type GetAllTotal,
+  type SearchPeriksaBalitaQuery,
+} from "./balita.model.js";
+import { angka, toDateOnly, toISOString } from "../lib/helper.js";
 
 @Injectable()
 export class BalitaService {
@@ -19,28 +17,15 @@ export class BalitaService {
     private logger: Logger,
   ) {}
 
-  async getAll({ q, tipe, from, to, take, page }: SearchPeriksaBalitaQuery) {
+  async getAll(query: SearchPeriksaBalitaQuery) {
     this.logger.info("BalitaService-getAll: executed ...");
-    const qParam = q ?? null;
-    const tipeParam = tipe ?? null;
-    const fromParam = from ?? null;
-    const toParam = to ?? null;
+    const offset = (query.page - 1) * query.take;
+    let data_raw: BalitaRow[] = [];
+    let total_raw: GetAllTotal[] = [];
 
-    const offset = (page - 1) * take;
-
-    const whereSql = Prisma.sql`
-      WHERE (${qParam} IS NULL
-        OR w.nama LIKE CONCAT('%', ${qParam}, '%')
-        OR w.nik LIKE CONCAT('%', ${qParam}, '%')
-        OR p.periode_survey LIKE CONCAT('%', ${qParam}, '%'))
-        AND (${tipeParam} IS NULL OR p.tipe_kunjungan = ${tipeParam})
-        AND (${fromParam} IS NULL OR p.tanggal_survey >= ${fromParam})
-        AND (${toParam} IS NULL OR p.tanggal_survey <= ${toParam})
-    `;
-
-    const [rows, counts] = await Promise.all([
-      prisma.$queryRaw<BalitaRow[]>(Prisma.sql`
-        SELECT
+    if (query.q && query.tipe) {
+      data_raw = await prisma.$queryRaw<BalitaRow[]>`
+      SELECT
           p.id,
           p.warga_id,
           p.tanggal_survey,
@@ -57,22 +42,120 @@ export class BalitaService {
           w.jenis_kelamin AS warga__jenis_kelamin,
           w.tanggal_lahir AS warga__tanggal_lahir,
           w.kategori AS warga__kategori
-        FROM periksa_balita p
-        INNER JOIN warga w ON w.id = p.warga_id
-        ${whereSql}
-        ORDER BY p.tanggal_survey DESC, p.id DESC
-        LIMIT ${take} OFFSET ${offset}
-      `),
-      prisma.$queryRaw<{ total: bigint | number | string }[]>(Prisma.sql`
-        SELECT COUNT(*) AS total
-        FROM periksa_balita p
-        INNER JOIN warga w ON w.id = p.warga_id
-        ${whereSql}
-      `),
-    ]);
+      FROM periksa_balita p
+          INNER JOIN warga w ON w.id = p.warga_id
+          where (w.nama  like CONCAT ("%", ${query.q}, "%") or 
+                 w.nik like concat ("%", ${query.q}, "%") )
+          and p.tipe_kunjungan = ${query.tipe}
+      ORDER BY p.tanggal_survey DESC, p.id DESC
+      LIMIT ${query.take}
+      OFFSET ${offset}`;
 
-    const total = Number(counts[0]?.total ?? 0);
-    const data = rows.map((row) => ({
+      total_raw = await prisma.$queryRaw<GetAllTotal[]>`
+      SELECT COUNT(*) AS total
+      FROM periksa_balita p
+      INNER JOIN warga w ON w.id = p.warga_id
+      where (w.nama  like CONCAT ("%", ${query.q}, "%") or 
+                 w.nik like concat ("%", ${query.q}, "%") )
+          and p.tipe_kunjungan = ${query.tipe}`;
+    } else if (!query.q && query.tipe) {
+      data_raw = await prisma.$queryRaw<BalitaRow[]>`
+      SELECT
+          p.id,
+          p.warga_id,
+          p.tanggal_survey,
+          p.periode_survey,
+          p.tipe_kunjungan,
+          p.usia_bulan,
+          p.bb_terkini,
+          p.pb_terkini,
+          p.lika,
+          p.lila,
+          w.id AS warga__id,
+          w.nik AS warga__nik,
+          w.nama AS warga__nama,
+          w.jenis_kelamin AS warga__jenis_kelamin,
+          w.tanggal_lahir AS warga__tanggal_lahir,
+          w.kategori AS warga__kategori
+      FROM periksa_balita p
+          INNER JOIN warga w ON w.id = p.warga_id
+          where p.tipe_kunjungan = ${query.tipe}
+      ORDER BY p.tanggal_survey DESC, p.id DESC
+      LIMIT ${query.take}
+      OFFSET ${offset}`;
+
+      total_raw = await prisma.$queryRaw<GetAllTotal[]>`
+      SELECT COUNT(*) AS total
+      FROM periksa_balita p
+      INNER JOIN warga w ON w.id = p.warga_id
+      where p.tipe_kunjungan = ${query.tipe}`;
+    } else if (!query.tipe && query.q) {
+      data_raw = await prisma.$queryRaw<BalitaRow[]>`
+      SELECT
+          p.id,
+          p.warga_id,
+          p.tanggal_survey,
+          p.periode_survey,
+          p.tipe_kunjungan,
+          p.usia_bulan,
+          p.bb_terkini,
+          p.pb_terkini,
+          p.lika,
+          p.lila,
+          w.id AS warga__id,
+          w.nik AS warga__nik,
+          w.nama AS warga__nama,
+          w.jenis_kelamin AS warga__jenis_kelamin,
+          w.tanggal_lahir AS warga__tanggal_lahir,
+          w.kategori AS warga__kategori
+      FROM periksa_balita p
+          INNER JOIN warga w ON w.id = p.warga_id
+      where
+            w.nama like CONCAT("%", ${query.q}, "%")
+            or w.nik like concat("%", ${query.q}, "%")
+      ORDER BY p.tanggal_survey DESC, p.id DESC
+      LIMIT ${query.take}
+      OFFSET ${offset}`;
+
+      total_raw = await prisma.$queryRaw<GetAllTotal[]>`
+      SELECT COUNT(*) AS total
+      FROM periksa_balita p
+      INNER JOIN warga w ON w.id = p.warga_id
+      where w.nama  like CONCAT ("%", ${query.q}, "%") or 
+            w.nik like concat ("%", ${query.q}, "%")`;
+    } else if (!query.q && !query.tipe) {
+      data_raw = await prisma.$queryRaw<BalitaRow[]>`
+      SELECT
+          p.id,
+          p.warga_id,
+          p.tanggal_survey,
+          p.periode_survey,
+          p.tipe_kunjungan,
+          p.usia_bulan,
+          p.bb_terkini,
+          p.pb_terkini,
+          p.lika,
+          p.lila,
+          w.id AS warga__id,
+          w.nik AS warga__nik,
+          w.nama AS warga__nama,
+          w.jenis_kelamin AS warga__jenis_kelamin,
+          w.tanggal_lahir AS warga__tanggal_lahir,
+          w.kategori AS warga__kategori
+      FROM periksa_balita p
+          INNER JOIN warga w ON w.id = p.warga_id
+      ORDER BY p.tanggal_survey DESC, p.id DESC
+      LIMIT ${query.take}
+      OFFSET ${offset}`;
+
+      total_raw = await prisma.$queryRaw<GetAllTotal[]>`
+      SELECT COUNT(*) AS total
+      FROM periksa_balita p
+      INNER JOIN warga w ON w.id = p.warga_id`;
+    }
+
+    const total = Number(total_raw[0]?.total ?? 0);
+    const data = data_raw.map((row) => ({
       id: row.id,
       warga_id: row.warga_id,
       tanggal_survey: toISOString(row.tanggal_survey),
@@ -93,7 +176,16 @@ export class BalitaService {
       },
     }));
 
-    return { data, page, take, total };
+    if (data.length === 0) {
+      throw new HttpException("Data Balita masih kosong", HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      data: data,
+      page: query.page,
+      take: query.take,
+      total: total,
+    };
   }
 
   async getByNIK(nik: string) {

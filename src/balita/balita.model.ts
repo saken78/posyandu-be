@@ -22,8 +22,8 @@ export type CreatePeriksaBalitaRequest = z.infer<
 export const SearchPeriksaBalitaSchema = z.object({
   q: z.string().trim().optional(),
   tipe: z.enum(periksa_balita_tipe_kunjungan).optional(),
-  from: z.coerce.date().optional(),
-  to: z.coerce.date().optional(),
+  // from: z.coerce.date().optional(),
+  // to: z.coerce.date().optional(),
   take: z.coerce.number().int().min(1).max(100).default(10),
   page: z.coerce.number().int().min(1).default(1),
 });
@@ -51,34 +51,10 @@ export type BalitaRow = {
   warga__kategori: warga_kategori;
 };
 
+export type GetAllTotal = {
+  total: number;
+};
+
 export function enumKey(value: string | null): string | null {
   return value?.replace(/[^\w]+/g, "_") ?? null;
-}
-
-export function angka(value: unknown): number | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  const result = Number(value);
-  return Number.isFinite(result) ? result : null;
-}
-
-// DATE -> YYYY-MM-DD
-export function toDateOnly(value: Date | string | null): string | null {
-  if (value === null) return null;
-
-  if (typeof value === "string") {
-    return value.slice(0, 10);
-  }
-
-  return value.toISOString().slice(0, 10);
-}
-
-// DATETIME -> ISO 8601
-export function toISOString(value: Date | string | null): string | null {
-  if (value === null) return null;
-
-  const date = value instanceof Date ? value : new Date(value);
-
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
