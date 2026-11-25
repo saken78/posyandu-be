@@ -18,8 +18,6 @@ export type CreatePeriksaPraSekolahRequest = z.infer<
 export const SearchPeriksaPraSekolahSchema = z.object({
   q: z.string().trim().optional(),
   tipe: z.enum(periksa_pra_sekolah_tipe_kunjungan).optional(),
-  // from: z.coerce.date().optional(),
-  // to: z.coerce.date().optional(),
   take: z.coerce.number().int().min(1).max(100).default(10),
   page: z.coerce.number().int().min(1).default(1),
 });
@@ -50,4 +48,26 @@ export type GetAllPeriksaPraSekolahRow = {
 
 export type GetAllTotal = {
   total: number;
+};
+
+export type PraSekolahResponse = {
+  id: string;
+  warga_id: string;
+  tanggal_survey: string | null;
+  periode_survey: string;
+  tipe_kunjungan: "Datang_Langsung" | "Kunjungan_Rumah";
+  berat_badan: number | null;
+  tinggi_badan: number | null;
+  lika: number | null;
+  lingkar_perut: number | null;
+  nilai_imt: number | null;
+  keterangan_imt: string | null;
+  warga: {
+    id: string;
+    nik: string;
+    nama: string;
+    jenis_kelamin: "L" | "P";
+    tanggal_lahir: string | null;
+    kategori: string;
+  };
 };

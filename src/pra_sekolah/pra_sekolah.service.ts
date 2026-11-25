@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { angka, toDateOnly, toISOString } from "../lib/helper.js";
+import { angka, praSekolahMap } from "../lib/helper.js";
 import { hitungIMT } from "../lib/imt.js";
 import { prisma } from "../lib/prisma.js";
 import type {
@@ -168,27 +168,10 @@ export class PraSekolahService {
     }
 
     const total = Number(total_raw[0]?.total ?? 0);
-    const data = data_raw.map((row) => ({
-      id: row.id,
-      warga_id: row.warga_id,
-      tanggal_survey: toISOString(row.tanggal_survey),
-      periode_survey: row.periode_survey,
-      tipe_kunjungan: row.tipe_kunjungan,
-      berat_badan: angka(row.berat_badan),
-      tinggi_badan: angka(row.tinggi_badan),
-      lika: angka(row.lika),
-      lingkar_perut: angka(row.lingkar_perut),
-      nilai_imt: angka(row.nilai_imt),
-      keterangan_imt: row.keterangan_imt,
-      warga: {
-        id: row.warga__id,
-        nik: row.warga__nik,
-        nama: row.warga__nama,
-        jenis_kelamin: row.warga__jenis_kelamin,
-        tanggal_lahir: toDateOnly(row.warga__tanggal_lahir),
-        kategori: row.warga__kategori,
-      },
-    }));
+    const data = data_raw.map((row: GetAllPeriksaPraSekolahRow) =>
+      praSekolahMap(row),
+    );
+
     if (data.length === 0) {
       throw new HttpException(
         "Data Anak Pra sekolah masih kosong",
@@ -204,26 +187,58 @@ export class PraSekolahService {
   }
 
   async getByNIK(nik: string) {
-    const data = await prisma.warga.findUnique({
-      where: {
-        nik: nik,
-        kategori: "Anak_Pra_Sekolah",
-      },
-      include: {
-        periksa_pra_sekolah: {
-          orderBy: {
-            tanggal_survey: "desc",
-          },
-        },
-      },
-    });
-    if (!data) {
+    const data = await prisma.$queryRaw<GetAllPeriksaPraSekolahRow[]>`
+      select
+          pp.id,
+          pp.warga_id,
+          pp.tanggal_survey,
+          pp.periode_survey,
+          pp.tipe_kunjungan,
+          pp.berat_badan,
+          pp.tinggi_badan,
+          pp.lika,
+          pp.lingkar_perut,
+          pp.nilai_imt,
+          pp.keterangan_imt,
+          w.id AS warga__id,
+          w.nik AS warga__nik,
+          w.nama AS warga__nama,
+          w.jenis_kelamin AS warga__jenis_kelamin,
+          w.tanggal_lahir AS warga__tanggal_lahir,
+          w.kategori AS warga__kategori
+      from
+          periksa_pra_sekolah as pp
+          inner join warga as w on w.id = pp.warga_id
+      where
+          w.nik = ${nik}
+      ORDER BY pp.tanggal_survey desc;`;
+
+    if (data.length === 0) {
       throw new HttpException(
         "Data Pra sekolah masih kosong",
         HttpStatus.NOT_FOUND,
       );
     }
-    return data;
+
+    const row = data[0];
+    return {
+      id: row?.id,
+      warga_id: row?.warga__id,
+      tanggal_survey: row?.tanggal_survey,
+      periode_survey: row?.periode_survey,
+      tipe_kunjungan: row?.tipe_kunjungan,
+      berat_badan: angka(row?.berat_badan),
+      tinggi_badan: angka(row?.tinggi_badan),
+      lika: angka(row?.lika),
+      warga: {
+        id: row?.warga__id,
+        nik: row?.warga__nik,
+        nama: row?.warga__nama,
+        jenis_kelamin: row?.warga__jenis_kelamin,
+        tanggal_lahir: row?.warga__tanggal_lahir.toISOString().slice(0, 10),
+        kategori: row?.warga__kategori,
+      },
+    };
   }
 
   async createScreening(nik: string, request: CreatePeriksaPraSekolahRequest) {

@@ -14,6 +14,7 @@ import {
   CreatePeriksaPraSekolahSchema,
   SearchPeriksaPraSekolahSchema,
   type CreatePeriksaPraSekolahRequest,
+  type PraSekolahResponse,
   type SearchPeriksaPraSekolahRequest,
 } from "./pra_sekolah.model.js";
 import { PraSekolahService } from "./pra_sekolah.service.js";
@@ -28,7 +29,7 @@ export class PraSekolahController {
   async getAll(
     @Query(new ZodValidationPipe(SearchPeriksaPraSekolahSchema))
     query: SearchPeriksaPraSekolahRequest,
-  ) {
+  ): Promise<{ data: PraSekolahResponse[] }> {
     const result = await this.prasekolahService.getAll(query);
     return jsonList(result);
   }
