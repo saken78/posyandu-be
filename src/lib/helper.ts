@@ -63,7 +63,7 @@ export function dewasaMap(row: DewasaRow) {
     berat_badan: angka(row.berat_badan),
     tinggi_badan: angka(row.tinggi_badan),
     lila: angka(row.lila),
-    kategori: row.keterangan_lila,
+    kategori: row.kategori_lila,
     lingkar_perut: angka(row.lingkar_perut),
     nilai_imt: angka(row.nilai_imt),
     keterangan_imt: row.keterangan_imt,
