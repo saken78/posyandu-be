@@ -25,6 +25,7 @@ model periksa_balita {
   kategori_bb_tb String?                        @db.VarChar(50)
   label_bb_tb    String?                        @db.VarChar(50)
   kategori_lila  String?                        @db.VarChar(50)
+  kategori_lika  String?                        @db.VarChar(50)
   warga          warga                          @relation(fields: [warga_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "balita_fk_wargaid")
 
   @@index([warga_id], map: "warga_id")
@@ -125,6 +126,7 @@ model periksa_pra_sekolah {
   berat_badan    Decimal?                            @db.Decimal(5, 2)
   tinggi_badan   Decimal?                            @db.Decimal(5, 2)
   lika           Decimal?                            @db.Decimal(5, 2)
+  kategori_lika  String?                             @db.VarChar(50)
   lingkar_perut  Decimal?                            @db.Decimal(5, 2)
   nilai_imt      Decimal?                            @db.Decimal(5, 2)
   keterangan_imt String?                             @db.VarChar(50)

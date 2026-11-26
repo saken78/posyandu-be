@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { angka, praSekolahMap } from "../lib/helper.js";
 import { hitungIMT } from "../lib/imt.js";
 import { prisma } from "../lib/prisma.js";
+import { hitungLIKA, hitungUmurBulan } from "../lib/ukur.js";
 import type {
   CreatePeriksaPraSekolahRequest,
   GetAllPeriksaPraSekolahRow,
@@ -28,6 +29,7 @@ export class PraSekolahService {
             pp.berat_badan,
             pp.tinggi_badan,
             pp.lika,
+            pp.kategori_lika,
             pp.lingkar_perut,
             pp.nilai_imt,
             pp.keterangan_imt,
@@ -70,6 +72,7 @@ export class PraSekolahService {
             pp.berat_badan,
             pp.tinggi_badan,
             pp.lika,
+            pp.kategori_lika,
             pp.lingkar_perut,
             pp.nilai_imt,
             pp.keterangan_imt,
@@ -106,6 +109,7 @@ export class PraSekolahService {
             pp.berat_badan,
             pp.tinggi_badan,
             pp.lika,
+            pp.kategori_lika,
             pp.lingkar_perut,
             pp.nilai_imt,
             pp.keterangan_imt,
@@ -144,6 +148,7 @@ export class PraSekolahService {
             pp.berat_badan,
             pp.tinggi_badan,
             pp.lika,
+            pp.kategori_lika,
             pp.lingkar_perut,
             pp.nilai_imt,
             pp.keterangan_imt,
@@ -269,6 +274,17 @@ export class PraSekolahService {
       kategori: "Anak_Pra_Sekolah",
     });
 
+    const umurBulan = hitungUmurBulan(
+      warga.tanggal_lahir,
+      request.tanggal_survey,
+    );
+
+    const lika = hitungLIKA({
+      nilaiCm: request.lika,
+      jenisKelamin: warga.jenis_kelamin,
+      umurBulan,
+    });
+
     const data = await prisma.periksa_pra_sekolah.create({
       data: {
         warga_id: warga.id,
@@ -278,6 +294,7 @@ export class PraSekolahService {
         berat_badan: request.berat_badan,
         tinggi_badan: request.tinggi_badan,
         lika: request.lika ?? null,
+        kategori_lika: lika.kategori,
         lingkar_perut: request.lingkar_perut ?? null,
         nilai_imt: imt.imt,
         keterangan_imt: imt.keterangan,

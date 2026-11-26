@@ -12,6 +12,7 @@ import { WargaModule } from "./warga/warga.module.js";
 import { BalitaModule } from "./balita/balita.module.js";
 import { PraSekolahModule } from "./pra_sekolah/pra_sekolah.module.js";
 import { TokenModule } from "./token/token.module.js";
+import { DewasaModule } from "./dewasa/dewasa.module.js";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TokenModule } from "./token/token.module.js";
     BalitaModule,
     PraSekolahModule,
     TokenModule,
+    DewasaModule,
   ],
   controllers: [],
   providers: [],

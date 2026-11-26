@@ -1,14 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import type { Logger } from "winston";
+import { angka, toDateOnly, toISOString } from "../lib/helper.js";
 import { prisma } from "../lib/prisma.js";
+import { hitungLIKA, hitungLILA, hitungUmurBulan } from "../lib/ukur.js";
 import {
   type BalitaRow,
   type CreatePeriksaBalitaRequest,
   type GetAllTotal,
   type SearchPeriksaBalitaQuery,
 } from "./balita.model.js";
-import { angka, toDateOnly, toISOString } from "../lib/helper.js";
 
 @Injectable()
 export class BalitaService {
@@ -222,6 +223,21 @@ export class BalitaService {
       throw new HttpException("Warga tidak ditemukan", HttpStatus.NOT_FOUND);
     }
 
+    const umurBulan =
+      request.usia_bulan ??
+      hitungUmurBulan(warga.tanggal_lahir, request.tanggal_survey);
+
+    const lika = hitungLIKA({
+      nilaiCm: request.lika,
+      jenisKelamin: warga.jenis_kelamin,
+      umurBulan,
+    });
+
+    const lila = hitungLILA({
+      nilaiCm: request.lila,
+      kategori: "Balita",
+    });
+
     const data = await prisma.periksa_balita.create({
       data: {
         warga_id: warga.id,
@@ -233,6 +249,8 @@ export class BalitaService {
         pb_terkini: request.pb_terkini ?? null,
         lika: request.lika ?? null,
         lila: request.lila ?? null,
+        kategori_lika: lika.kategori,
+        kategori_lila: lila.kategori,
       },
     });
 
