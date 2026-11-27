@@ -35,6 +35,7 @@ export type GetAllPeriksaPraSekolahRow = {
   berat_badan: number;
   tinggi_badan: number;
   lika: number | null;
+  kategori_lika: string | null;
   lingkar_perut: number | null;
   nilai_imt: number | null;
   keterangan_imt: string | null;
@@ -59,6 +60,7 @@ export type PraSekolahResponse = {
   berat_badan: number | null;
   tinggi_badan: number | null;
   lika: number | null;
+  kategori_lika: string | null;
   lingkar_perut: number | null;
   nilai_imt: number | null;
   keterangan_imt: string | null;

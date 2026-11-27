@@ -43,6 +43,8 @@ export type BalitaRow = {
   pb_terkini: number | string | null;
   lika: number | string | null;
   lila: number | string | null;
+  kategori_lika: string | null;
+  kategori_lila: string | null;
   warga__id: string;
   warga__nik: string;
   warga__nama: string;

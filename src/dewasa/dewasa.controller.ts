@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -41,5 +42,21 @@ export class DewasaController {
   ) {
     const result = await this.dewasaService.getAll(query);
     return jsonList(result);
+  }
+
+  @Get("/dewasa/:nik")
+  @UseGuards(CookiesChecker)
+  async getByNIK(@Param("nik") nik: string) {
+    const result = await this.dewasaService.getByNIK(nik);
+    return jsonOk(result);
+  }
+
+  @Delete("/dewasa/screening/:id")
+  @UseGuards(CookiesChecker)
+  async deleteScreening(
+    @Param("id") id: string,
+  ): Promise<{ data: { message: string } }> {
+    const result = await this.dewasaService.deleteScreening(id);
+    return jsonOk(result);
   }
 }

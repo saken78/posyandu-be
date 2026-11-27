@@ -37,6 +37,8 @@ export class BalitaService {
           p.pb_terkini,
           p.lika,
           p.lila,
+          p.kategori_lika,
+          p.kategori_lila,
           w.id AS warga__id,
           w.nik AS warga__nik,
           w.nama AS warga__nama,
@@ -72,6 +74,8 @@ export class BalitaService {
           p.pb_terkini,
           p.lika,
           p.lila,
+          p.kategori_lika,
+          p.kategori_lila,
           w.id AS warga__id,
           w.nik AS warga__nik,
           w.nama AS warga__nama,
@@ -103,6 +107,8 @@ export class BalitaService {
           p.pb_terkini,
           p.lika,
           p.lila,
+          p.kategori_lika,
+          p.kategori_lila,
           w.id AS warga__id,
           w.nik AS warga__nik,
           w.nama AS warga__nama,
@@ -137,6 +143,8 @@ export class BalitaService {
           p.pb_terkini,
           p.lika,
           p.lila,
+          p.kategori_lika,
+          p.kategori_lila,
           w.id AS warga__id,
           w.nik AS warga__nik,
           w.nama AS warga__nama,
@@ -167,6 +175,8 @@ export class BalitaService {
       pb_terkini: angka(row.pb_terkini),
       lika: angka(row.lika),
       lila: angka(row.lila),
+      kategori_lika: row.kategori_lika,
+      kategori_lila: row.kategori_lila,
       warga: {
         id: row.warga__id,
         nik: row.warga__nik,
@@ -257,7 +267,7 @@ export class BalitaService {
     return data;
   }
 
-  async deleteScreening(id: string) {
+  async deleteScreening(id: string): Promise<{ message: string }> {
     this.logger.info("BalitaService-deleteScreening: executed ...");
     const exist = await prisma.periksa_balita.findUnique({
       where: {

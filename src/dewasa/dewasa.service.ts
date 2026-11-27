@@ -66,6 +66,27 @@ export class DewasaService {
     return data;
   }
 
+  async getByNIK(nik: string) {
+    const data = await prisma.warga.findUnique({
+      where: {
+        nik: nik,
+        kategori: "Usia_Dewasa",
+      },
+      include: {
+        periksa_dewasa: {
+          orderBy: {
+            tanggal_survey: "desc",
+          },
+        },
+      },
+    });
+
+    if (!data) {
+      throw new HttpException("Data dewasa masih kosong", HttpStatus.NOT_FOUND);
+    }
+    return data;
+  }
+
   async getAll(query: SearchPeriksaDewasaQuery) {
     const offset = (query.page - 1) * query.take;
     let data_raw: DewasaRow[] = [];
@@ -222,6 +243,31 @@ export class DewasaService {
       page: query.page,
       take: query.take,
       total: total,
+    };
+  }
+
+  async deleteScreening(id: string): Promise<{ message: string }> {
+    const exist = await prisma.periksa_dewasa.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!exist) {
+      throw new HttpException(
+        "Data screening dewasa tidak di temukan",
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await prisma.periksa_dewasa.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return {
+      message: "Screening dewasa berhasil dihapus",
     };
   }
 }
